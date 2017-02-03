@@ -20,7 +20,7 @@ var ball_diameter = 5;
 var start_x_velocity = 4;
 var start_y_velocity = 4;
 
-var velocity_increase = 1.01;
+var velocity_increase = 0.02;
 
 var x_velocity = start_x_velocity;
 var y_velocity = start_y_velocity;
@@ -28,7 +28,8 @@ var y_velocity = start_y_velocity;
 var score1 = 0;
 var score2 = 0;
 
-var ai_speed = 6;
+var start_ai_speed = 6;
+var ai_speed = start_ai_speed;
 
 window.onload=function() {
 	c = document.getElementById('gc');
@@ -51,12 +52,23 @@ function reset() {
 
 	x_velocity = start_x_velocity;
 	y_velocity = start_y_velocity;
+	ai_speed = start_ai_speed;
+
 }
 
 function update() {
+	if (x_velocity > 0) {
+		x_velocity +=  velocity_increase;
+	} else {
+		x_velocity -=  velocity_increase;
+	}
+	if (y_velocity > 0) {
+		y_velocity +=  velocity_increase;
+	} else {
+		y_velocity -=  velocity_increase;
+	}
 
-	x_velocity *= velocity_increase;
-	y_velocity *= velocity_increase;
+	ai_speed += velocity_increase/2;
 
 	ball_x += x_velocity;
 	ball_y += y_velocity;
@@ -67,6 +79,7 @@ function update() {
 
 	draw();
 }
+
 
 function controlEdgeCollisions() {
 
@@ -79,22 +92,26 @@ function controlEdgeCollisions() {
 	if (ball_x < 0) {
 		if (ball_y > player1_y && ball_y < player1_y + player_height) {
 			x_velocity = -x_velocity;
+			play('hit');
 			var delta_y = ball_y - (player1_y + player_height / 2);
 			y_velocity = delta_y * 0.3;
 		}
 		else {
 			score2++;
+			play('applause');
 			reset();
 		}
 	}
 	else if (ball_x > c.width - ball_diameter) {
 		if (ball_y > player2_y && ball_y < player2_y + player_height) {
 			x_velocity = -x_velocity;
+			play('hit');
 			var delta_y = ball_y - (player2_y + player_height / 2);
 			y_velocity = delta_y * 0.3;
 		}
 		else {
 			score1++;
+			play('applause');
 			reset();
 		}
 	}
@@ -126,6 +143,21 @@ function draw() {
 	cc.fillText(score2, c.width - 100, 100);
 }
 
+var appl = new Audio("sounds/applause.wav");
+
+var snd = [];
+
+for (var i = 0; i < 7; i++) {
+	snd.push(new Audio("sounds/hit" + i + ".wav"));
+}
+
+function play(s) {
+	if (s == 'hit') {
+		snd[Math.floor(Math.random()*7)].play();
+	} else if (s == 'applause') {
+		appl.play()
+	}
+}
 
 
 
